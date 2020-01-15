@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./css/App.css">
+</head>
+
+<body>
+  <div id="app">
+    <div id="nav" :class="{nightview: night}">
+      <h2>GoodNotes.</h2>
+      <div class="create" @click="addnewCard" :class="{nightview: night}">
+        <span :class="{cir: true,nightview: night}" >
+          <span class="row_line"></span>
+          <span class="col_line"></span>
+        </span>
+        <h3 :class="{nightview: night}">新增筆記</h3>
+      </div>
+      <ul class="menu">
+        <li @click="shortcut = false">
+          <img src="./assets/ICON和元件/file.png" alt />
+          <p>所有筆記</p>
+        </li>
+        <li @click="shortcut = true">
+          <img src="./assets/ICON和元件/favorite.png" alt />
+          <p>捷徑</p>
+        </li>
+        <li>
+          <img src="./assets/ICON和元件/label.png" alt />
+          <p>標籤</p>
+        </li>
+        <li>
+          <img src="./assets/ICON和元件/calendar_today.png" alt />
+          <p>月曆</p>
+        </li>
+        <li>
+          <img src="./assets/ICON和元件/people.png" alt />
+          <p>與我共用</p>
+        </li>
+        <li>
+          <img src="./assets/ICON和元件/delete.png" alt />
+          <p>垃圾桶</p>
+        </li>
+      </ul>
+      <div class="bottomItem">
+        <div class="chooseBack">
+          <p>模式:</p>
+          <span class="day" @click="night = false">
+            <img src="./assets/ICON和元件/wb_sunny.png" alt />
+          </span>
+          <span class="night" @click="night = true">
+            <img src="./assets/ICON和元件/night_stay.png" alt />
+          </span>
+        </div>
+        <div class="member">
+          <div class="memberImg">
+            <div class="div">
+              <img src="./assets/ICON和元件/beautiful.png" alt />
+            </div>
+          </div>
+          <div class="memberName">
+            <p>Sandra</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="filter">
+      <label for>
+        <img src="./assets/ICON和元件/search.png" alt />
+        <input type="text" placeholder="搜尋您的筆記" v-model="search"/>
+      </label>
+      <div class="FilterChoose">
+        <div class="category_word">
+          <p v-if="shortcut == false" style="text-align: center">
+            所有筆記
+            <span></span>
+          </p>
+          <p v-if="shortcut == true"　style="text-align: center">
+            捷徑
+            <span></span>
+          </p>
+          <div class="dropdown">
+            <a class="btn" href="#" data-toggle="dropdown">
+              <img :src=imgSrc />
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <a class="dropdown-item" href="#"
+                @click="imgSrc = './assets/ICON和元件/view_module.png';filterType = '卡片檢視'">
+                <img src="./assets/ICON和元件/view_module.png" alt />卡片檢視
+              </a>
+              <a class="dropdown-item" href="#" @click="imgSrc = './assets/ICON和元件/view_list.png';filterType = '摘要檢視'">
+                <img src="./assets/ICON和元件/view_list.png" alt />摘要檢視
+              </a>
+              <a class="dropdown-item" href="#" @click="imgSrc = './assets/ICON和元件/list.png';filterType = '文字列表檢視'">
+                <img src="./assets/ICON和元件/list.png" alt />文字列表檢視
+              </a>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="category" v-if="filterType == '卡片檢視'">
+          <div v-for="(list,index) in subtext" :class="{card: true,active: cardindex == index}" :key="index"
+            @click.stop="cardindex = index;Note(index)">
+            <div class="card-body">
+              <h5 class="card-title">
+                <img src="./assets/ICON和元件/starline.png" v-if="list.favorite == false" @click="fav(true,index)">
+                <img src="./assets/ICON和元件/star.png" v-if="list.favorite == true" @click="fav(false,index)">
+                {{list.title}} </h5>
+              <hr />
+              <p class="card-text">{{list.text}}</p>
+            </div>
+            <div class="cate">
+              <p class="card_date">{{ list.date }}</p>
+              <span class="badge badge-primary" v-for="(cate,catindex) in list.category" :key="catindex"
+                v-if="list.category != '' ">{{ cate }}</span>
+            </div>
+            <span class="sm_box"></span>
+            <span class="sm_box2"></span>
+            <span class="sm_box3"></span>
+          </div>
+        </div>
+        <div class="category" v-if="filterType == '摘要檢視'">
+          <div :class="{card: true,summary: true,summfus: hoverYN(index) || cardindex == index}" 
+            v-for="(list,index) in subtext"
+            @click.stop="cardindex = index;Note(index)"
+            @mouseover="cardshow(index)" @mouseleave="cardshow(-1)">
+            <div class="card-body">
+              <h5 class="card-title">
+                <img src="./assets/ICON和元件/starline.png" v-if="list.favorite == false" @click="fav(true,index)">
+                <img src="./assets/ICON和元件/star.png" v-if="list.favorite == true" @click="fav(false,index)">
+                {{ list.title }}</h5>
+              <p class="card-text">{{list.text}}</p>
+              <div class="cate">
+                <span class="badge badge-primary imp" v-for="(cate,catindex) in list.category" :key="catindex"
+                  v-if="list.category != '' ">{{ cate }}</span>
+                <p class="card_date" style="width: 100%;" v-if="index != 'newcard'">{{ list.date }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="category" v-if="filterType == '文字列表檢視'">
+          <div :class="{card: true,onlyword: true,summfus: hoverYN(index) || cardindex == index}" 
+            v-for="(list,index) in subtext"
+            @click.stop="cardindex = index;Note(index)"
+            @mouseover="cardshow(index)" @mouseleave="cardshow(-1)">
+            <div class="card-body">
+              <h5 class="card-title" style="font-size: 1rem;">
+                <img src="./assets/ICON和元件/starline.png" v-if="list.favorite == false" @click="fav(true,index)">
+                <img src="./assets/ICON和元件/star.png" v-if="list.favorite == true" @click="fav(false,index)">
+                {{ list.title }}</h5>
+              <p class="card_date" 
+              style="width: 25%;right: 8%;margin: 0 auto;position: absolute;top: 50%;transform: translateY(-50%);" 
+              v-if="index != 'newcard'">{{ list.date }}</p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div id="CreateNote">
+      <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+          <p>
+            Arial
+            <span></span>
+          </p>
+        </li>
+        <li class="nav-item">
+          <p>
+            14
+            <span></span>
+          </p>
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_bold.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_italic.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_underline.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_indent_increase.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_indent_decrease.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_align_left.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_line_spacing.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/format_list_bulleted.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/insert_link.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/image.png" alt />
+        </li>
+        <li class="nav-item">
+          <img src="./assets/ICON和元件/attachment.png" alt />
+        </li>
+      </ul>
+      <hr />
+      <div class="CreatNote_text">
+        <input type="text" class="title" placeholder="無標題" v-model="nowNote.title" />
+        <div class="taglist">
+          <span v-for="(note,index) in nowNote.category" :key="index">{{ note }} <span @click="delTag(index)"
+              class="cross">×</span></span>
+          <span class="create" v-if="addTag == true"><input type="text" class="noteTag"
+              @keyup.enter="addtag();addTag = false"></span>
+          <span class="create" @click.stop="addTag = !addTag" v-else>+ 新增</span>
+        </div>
+        <textarea placeholder="在此輸入文字" v-model="nowNote.text" @input="changeNote"></textarea>
+        <div class="controlbtn">
+          <button type="button" class="btn btn-primary edit" @click="pushNote"
+            v-if="cardindex == 'newcard' || cardindex == 0">儲存</button>
+          <button type="button" class="btn btn-primary edit" @click="updateNote"
+            v-if="cardindex != 'newcard' && cardindex != 0">更新</button>
+          <button type="button" class="btn btn-primary deleteNote " @click="deleteNote"
+            v-if="cardindex != 'newcard' && cardindex != 0">刪除</button>
+        </div>
+      </div>
+
+      <div class="uploaded">
+        <div class="alert files">
+          <img src="./assets/ICON和元件/attachment_blue.png" alt="">
+          上傳檔案、圖片、音檔
+          <span class="upload">點擊上傳檔案</span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+      <div class="alert uploadFile">
+        <img src="./assets/ICON和元件/insert-drive-file.png" alt="">
+        上傳檔案、圖片、音檔
+        <span class="upload">點擊上傳檔案</span>
+        <button type="button" class="close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+    <!-- <router-view/> -->
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-database.js"></script>
+  <!-- bootstrap -->
+  <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="./node_modules/popper.js/dist/umd/popper.min.js"></script>
+  <script src="./node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+  <!-- vue + axios -->
+  <script src="./node_modules/axios/dist/axios.min.js"></script>
+  <script src="./node_modules/vue/dist/vue.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyBed8sxIEurjEl6BzXusHIhpu2T2Shm_IM",
+      authDomain: "goodnote-f70da.firebaseapp.com",
+      databaseURL: "https://goodnote-f70da.firebaseio.com",
+      projectId: "goodnote-f70da",
+      storageBucket: "goodnote-f70da.appspot.com",
+      messagingSenderId: "11495920082",
+      appId: "1:11495920082:web:2af0ae56151d02eba8780b",
+      measurementId: "G-5PW9F490T4"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        night: false,
+        filterType: "卡片檢視",
+        shortcut: false,
+        ishover: -1,
+        className: {},
+        search: '',
+        cardindex: 0, // 決定 card 是否 active
+        addTag: false,
+        imgSrc: "./assets/ICON和元件/view_module.png",
+        lists: {},
+        nowNote: {
+          title: '',
+          text: '',
+          category: [],
+          favorite: false
+        },
+      },
+      methods: {
+        date() {
+          var now = new Date();
+          var year = now.getFullYear();
+          var mon = now.getMonth() + 1 > 10 ? now.getMonth() + 1 : "0" + (now.getMonth() + 1);
+          var date = now.getDate() > 10 ? now.getDate() : "0" + now.getDate();
+
+          today = `${year}-${mon}-${date}`;
+        },
+        Note(index) {
+          var vm = this;
+          this.nowNote.title = vm.lists[index].title;
+          this.nowNote.text = vm.lists[index].text;
+          this.nowNote.category = vm.lists[index].category;
+        },
+        changeNote() {
+          // 送資料
+
+        },
+        async load() { // 一開始下載資料，並監控
+          // list 的 資料
+          var vm = this;
+          var list = firebase.database().ref('list');
+
+          function loadfirst() {
+            return new Promise((resolve, reject) => {
+              list.orderByChild('sec').on('value', function (snapshot) {
+                // var data = snapshot.val();
+                // for (item in data) {
+                //   if (data[item].category == "") {
+                //     data[item].category = []
+                //   } else {
+                //     data[item].category = data[item].category.split(",");
+                //   }
+                // }
+
+                // 以時間作為排序
+                var data = {};
+                snapshot.forEach(item => {
+                  var snapdata = item.val();
+                  var id = item.key;
+                  if (snapdata.category == "") {
+                    snapdata.category = []
+                  } else {
+                    snapdata.category = snapdata.category.split(",");
+                  }
+                  data[id] = snapdata;
+                });
+                var keys = Object.keys(data);
+
+                // console.log(keys)
+                // 反轉時間排序,由後往前
+                var newdata = {};
+                for (var i = keys.length - 1; i >= 0; i--) {
+                  newdata[keys[i]] = data[keys[i]];
+                }
+                // console.log(newdata)
+                vm.lists = newdata;
+                resolve();
+              })
+            })
+          }
+
+          await loadfirst();
+          this.afterload();
+        },
+        afterload() { // 一開始的初職
+          var vm = this;
+          var idlist = Object.keys(vm.lists);
+          vm.cardindex = idlist[0];
+          vm.nowNote.title = vm.lists[vm.cardindex].title;
+          vm.nowNote.text = vm.lists[vm.cardindex].text;
+          vm.nowNote.category = vm.lists[vm.cardindex].category;
+        },
+        addnewCard() { // 新增假資料
+          var vm = this;
+          vm.date();
+          var newcards = {
+            title: '',
+            text: '',
+            category: [],
+            date: today,
+            favorite: false
+          };
+
+          var keys = Object.keys(vm.lists);
+          var data = {};
+          for (var i = keys.length - 1; i >= 0; i--) { // 反轉
+            data[keys[i]] = vm.lists[keys[i]];
+          }
+
+          data['newcard'] = newcards; // 新增假資料
+          // console.log(data)
+          var newdata = {};
+          var keys = Object.keys(data);
+          // console.log(keys)
+          for (var i = keys.length - 1; i >= 0; i--) { // 之後再反轉回來
+            newdata[keys[i]] = data[keys[i]];
+          }
+          // console.log(newdata)
+          vm.lists = newdata;
+          vm.cardindex = 'newcard'; // 焦點轉到假資料
+          vm.nowNote = {
+            title: '',
+            text: '',
+            category: [],
+            favorite: false
+          }
+          // vm.$set(vm.lists, 'newcard', newcards);
+        },
+        delTag(index) { // 刪除標籤
+          var vm = this;
+          vm.lists[vm.cardindex].category.splice(index, 1);
+        },
+        pushNote() { // 推到 firebase
+          var vm = this;
+          if (vm.nowNote.title == '') {
+            alert("標題不得為空");
+            return
+          }
+          vm.date();
+          var data = JSON.parse(JSON.stringify(vm.nowNote));
+          data.date = today;
+          data.sec = Date.now();
+          data.favorite = false;
+          if (data.category.length == 0) {
+            data.category = ""
+          } else {
+            data.category = data.category.join(',');
+          }
+
+
+          var list = firebase.database().ref('list');
+          list.push(data).then(res => {
+            alert('新增成功');
+            var keys = Object.keys(vm.lists);
+            vm.cardindex = keys[0];
+          });
+        },
+        updateNote() { // 更新數據
+          var vm = this;
+          vm.date();
+          var list = firebase.database().ref('list').child(vm.cardindex);
+          var nowNote = JSON.parse(JSON.stringify(vm.nowNote));
+          nowNote.date = today;
+          nowNote.sec = Date.now();
+
+          if (nowNote.category.length == 0) {
+            nowNote.category = "";
+          } else {
+            nowNote.category = nowNote.category.join(",");
+          }
+
+          list.set(nowNote).then(function () {
+            alert('更新成功');
+          });
+        },
+        deleteNote() {
+          var vm = this;
+          var list = firebase.database().ref('list').child(vm.cardindex);
+          list.remove().then(() => {
+            alert('刪除成功');
+            vm.nowNote = {
+              title: '',
+              text: '',
+              category: [],
+              favorite: false
+            }
+          })
+        },
+        btn() { // btn disable
+          var btn = document.getElementsByClassName('edit');
+          if (this.cardindex == 0) {
+            for (var i = 0; i < btn.length; i++) {
+              btn[i].disabled = true;
+            }
+          } else {
+            for (var i = 0; i < btn.length; i++) {
+              btn[i].disabled = false;
+            }
+          }
+        },
+        addtag() {
+          var vm = this;
+          var noteTag = document.getElementsByClassName('noteTag')[0].value;
+          vm.nowNote.category.push(noteTag);
+        },
+        fav(yn, index) { // 加星號，如果是假資料就返回
+          var vm = this;
+          if (index == 'newcard') return;
+          setTimeout(() => {
+            var list = firebase.database().ref('list').child(vm.cardindex);
+            vm.lists[vm.cardindex].favorite = yn;
+            var data = JSON.parse(JSON.stringify(vm.lists[vm.cardindex]));
+            data.favorite = yn;
+            if (data.category.length == 0) {
+              data.category = "";
+            } else {
+              data.category = data.category.join(",");
+            };
+            // console.log(data)
+            list.set(data);
+          }, 10)
+        },
+        cardshow(index){
+          this.ishover = index;
+        },
+        hoverYN(index){
+          var vm = this;
+          return vm.ishover == index;
+        },
+      },
+      mounted() {
+        this.load();
+        this.btn();
+      },
+      computed: {
+        subtext() { // 卡片
+          var vm = this;
+          var data = JSON.parse(JSON.stringify(vm.lists));
+          if (vm.shortcut == true) { // 判斷加星號
+            for (var item in data) {
+              if (data[item].favorite == false) {
+                delete data[item];
+              }
+            }
+          }
+          // 搜尋
+          if(vm.search != ''){
+            for(item in data){
+              if(data[item].title.indexOf(vm.search) == -1 && data[item].text.indexOf(vm.search) == -1 ){
+                delete data[item];
+              }
+            }
+          }
+
+          // 觀看樣式
+          switch (vm.filterType) {
+            case "卡片檢視":
+              for (item in data) {
+                if (data[item].text !== '') {
+                  if (data[item].title.length >= 15) {
+                    data[item].title = data[item].title.substr(0, 15) + "..."
+                  }
+                  data[item].text = data[item].text.substr(0, 50) + "...";
+                };
+              }
+              break;
+            case "摘要檢視":
+              for (item in data) {
+                if (data[item].text !== '') {
+                  if (data[item].title.length >= 15) {
+                    data[item].title = data[item].title.substr(0, 15) + "..."
+                  }
+                  data[item].text = data[item].text.substr(0, 30) + "...";
+                };
+              }
+              break;
+            case "文字列表檢視":
+              for (item in data) {
+                if (data[item].text !== '') {
+                  if (data[item].title.length >= 15) {
+                    data[item].title = data[item].title.substr(0, 10) + "..."
+                  }
+                  data[item].text = data[item].text.substr(0, 30) + "...";
+                };
+              }
+              break;
+
+          }
+
+
+          return data;
+        },
+        date() {
+          // 獲得日期
+          var now = new Date();
+          var year = now.getFullYear();
+          var mon = now.getMonth() + 1 > 10 ? now.getMonth() + 1 : "0" + (now.getMonth() + 1);
+          var date = now.getDate() > 10 ? now.getDate() : "0" + now.getDate();
+
+          var today = `${year}-${mon}-${date}`;
+          return today;
+        }
+      },
+      watch: {
+        cardindex() {
+          this.btn();
+        }
+      },
+      created() {
+
+      },
+    })
+  </script>
+</body>
+
+</html>

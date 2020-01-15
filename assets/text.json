@@ -1,0 +1,14 @@
+{
+  "lists":[
+    {
+      "title": "Card title",
+      "text": "Some quick example text to build on the card title and make up the bulk of the card content.",
+      "category": "新聞,娛樂"
+    },
+    {
+      "title": "Card title",
+      "text": "在愛裡陷得太深而失去自我，是否還能稱作是愛?\n歌曲描述的是一種愛得太深而迷失自我的感情狀態，想忘卻也無法忘卻的痛苦。當你變得不像自己，就像變色龍失去了本身的色彩。",
+      "category": "新聞,娛樂"
+    }
+  ]
+}
